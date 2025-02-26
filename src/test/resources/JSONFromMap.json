@@ -1,0 +1,11 @@
+{
+  "skillset" : [ "Java", "Teradata", "Python", "Power BI" ],
+  "gender" : "female",
+  "DOB" : "12-02-1985",
+  "name" : "Vibha Singh",
+  "contactNumber" : "+919999988822",
+  "employeeId" : "10342256",
+  "location" : "Dublin",
+  "emailId" : "abc@test.com",
+  "salary" : "75000.0"
+}
