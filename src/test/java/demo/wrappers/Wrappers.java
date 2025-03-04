@@ -37,30 +37,7 @@ public class Wrappers {
      * Write your selenium wrappers here
      */
 
-    public static String GetCurrentURL(WebDriver driver)
-    {   
-        try {       
-             String url=driver.getCurrentUrl();
-             return url;
-        
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-                return null;
 
-    }
-    public static void enter_Value(WebElement element,String attributeValue)
-    {
-        try 
-        {
-            element.clear();
-            element.sendKeys(attributeValue);
-        } catch (Exception e) 
-        {
-            e.printStackTrace();
-        }
-        
-    }
     public static String getText(WebElement element)
     {
         try 
@@ -85,58 +62,43 @@ public class Wrappers {
         }
 
     }
-    public static WebElement FindElement(WebElement res,String xpath)
-    {
-        try 
-        {
-            WebElement element=res.findElement(By.xpath(xpath));
-            return element;
-        } catch (Exception e) 
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-    public static WebElement FindElement(WebDriver driver,String xpath)
-    {
-        try 
-        {
-            WebElement element=driver.findElement(By.xpath(xpath));
-            return element;
-        } catch (Exception e) 
-        {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-    public static ArrayList<String> getTeamDetails(WebDriver driver,Integer NoofPagestoGet)
+    public static ArrayList<HashMap<String,String>> getTeamDetails(WebDriver driver,Integer NoofPagestoGet,Double WinPercent)
     {  
-        ArrayList<String> Teams = new ArrayList<String>();
+        ArrayList<HashMap<String,String>> Teams = new ArrayList<>();
         for(int i=1;i<=NoofPagestoGet;i++)
         {
             WebElement btnNextPage=driver.findElement(By.xpath("//a[@href='/pages/forms/?page_num="+i+"']"));
             btn_click(btnNextPage);
             //Get the rows with Win % less than 40% (0.40) 
-            List<WebElement> wins=driver.findElements(By.xpath("//td[contains(@class,'pct') and number(text())<0.4]"));
+            List<WebElement> wins=driver.findElements(By.xpath("//td[contains(@class,'pct') and number(text())<"+WinPercent+"]"));
+            
             for(WebElement win:wins)
             {   //locate elements for rows for Team Name,Year and Win %tage
                 WebElement EleTeamName=win.findElement(By.xpath("./ancestor::tr/td[@class='name']"));
                 WebElement EleYear=win.findElement(By.xpath("./ancestor::tr/td[@class='year']"));
                 //Get text for the located elements
-                String TeamName=EleTeamName.getText().toString();
-                String Year=EleYear.getText().toString();
-                String WinPercentage=win.getText().toString();
+                String TeamName=getText(EleTeamName).toString();
+                String Year=getText(EleYear).toString();
+                String WinPercentage=getText(win).toString();
+
                 System.out.println("TeamName:"+TeamName+",Year:"+Year+",Win Percentage:"+WinPercentage);
-                Teams.add("TeamName:"+TeamName+",Year:"+Year+",Win Percentage:"+WinPercentage);
+                long epochtime=System.currentTimeMillis()/1000;
+                String epoch=Long.toString(epochtime);
+                HashMap<String, String> TeamHashMap=new HashMap();
+                TeamHashMap.put("TeamName",TeamName);
+                TeamHashMap.put("Year",Year);
+                TeamHashMap.put("Win Percentage",WinPercentage);
+                TeamHashMap.put("Epoch Time",epoch);
+                Teams.add(TeamHashMap);
+                // System.out.println(Teams);
+                //Teams.add("TeamName:"+TeamName+",Year:"+Year+",Win Percentage:"+WinPercentage);
             }
         }
        return Teams;
     }
-    public static ArrayList<String> getFilmDetails(WebDriver driver) throws InterruptedException
+    public static ArrayList<HashMap<String,String>> getFilmDetails(WebDriver driver) throws InterruptedException
     {  
-        ArrayList<String> Films = new ArrayList<String>();
+        ArrayList<HashMap<String,String>> Films = new ArrayList<>();
         //Locate the element for year
         List<WebElement> years=driver.findElements(By.xpath("//a[@class='year-link']"));
         for(WebElement year:years)
@@ -145,54 +107,69 @@ public class Wrappers {
             String Year=year.getText().toString();
             Thread.sleep(5000);            
             //run for loop for getting data for first 5 rows
+            
             for(int i=1;i<=5;i++)
             {   //locate elements Title,Nomination,Awards and Winner for the row in the table
-                WebElement EleTitle=driver.findElement(By.xpath("(//table//tr/td[1])["+i+"]"));
-                WebElement EleNominations=driver.findElement(By.xpath("(//table//tr/td[2])["+i+"]"));
-                WebElement EleAwards=driver.findElement(By.xpath("(//table//tr/td[3])["+i+"]"));
+                WebElement EleTitle=driver.findElement(By.xpath("(//td[@class='film-title'])["+i+"]"));
+                WebElement EleNominations=driver.findElement(By.xpath("(//td[@class='film-nominations'])["+i+"]"));
+                WebElement EleAwards=driver.findElement(By.xpath("(//td[@class='film-awards'])["+i+"]"));
+                List<WebElement> EleBestPicture=driver.findElements(By.xpath("(//td[@class='film-best-picture'])["+i+"]/i"));
                 //Get text for the located elements
-                String Title=EleTitle.getText().toString();
-                String Nominations=EleNominations.getText().toString();
-                String Awards=EleAwards.getText().toString();
-                boolean isWinner=false;
-                Duration timeout=Duration.ofMillis(1000);
-                WebDriverWait wait = new WebDriverWait(driver, timeout);
-                try 
-                {
-                    wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//table//tr/td[4])["+i+"]/i")));
-                    isWinner=true;
-                } catch (Exception e) {
-                    // TODO: handle exception
-                    e.printStackTrace();
-                }
+                String Title=getText(EleTitle).toString();
+                String Nominations=getText(EleNominations).toString();
+                String Awards=getText(EleAwards).toString();
+                boolean isWinner=EleBestPicture.size()>0;
+                // Duration timeout=Duration.ofMillis(1000);
+                // WebDriverWait wait = new WebDriverWait(driver, timeout);
+                // try 
+                // {
+                //     wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("(//table//tr/td[4])["+i+"]/i")));
+                //     isWinner=true;
+                // } catch (Exception e) {
+                //     // TODO: handle exception
+                //     //.printStackTrace();
+                //     isWinner=false;
+
+
+                // }
 
                 System.out.println("Title:"+Title+",Year:"+Year+",Nominations:"+Nominations+",Awards:"+Awards+",isWinner:"+isWinner);
-                Films.add("Title:"+Title+",Year:"+Year+",Nominations:"+Nominations+",Awards:"+Awards+",isWinner:"+isWinner);
+                long epochtime=System.currentTimeMillis()/1000;
+                String epoch=Long.toString(epochtime);
+                String isWin=Boolean.toString(isWinner);
+                HashMap<String, String> FilmHashMap=new HashMap();
+                FilmHashMap.put("Epoch Time",epoch);
+                FilmHashMap.put("Title",Title);
+                FilmHashMap.put("Year",Year);
+                FilmHashMap.put("Nominations",Nominations);
+                FilmHashMap.put("isWinner", isWin);
+                Films.add(FilmHashMap);
+                // System.out.println(Films);
             }
         }
        return Films;
     }
     @Test
-    public static void CreateJSON(ArrayList<String> Values,String FileName) throws JsonProcessingException {
+    public static void CreateJSON(ArrayList<HashMap<String,String>> Values,String FileName) throws JsonProcessingException {
  
         //Get current epoch time
-        long epochtime;
+        // long epochtime;
         ObjectMapper map = new ObjectMapper();
-        Map<String, String> inputMap = new HashMap<String, String>();
+        // Map<String, String> inputMap = new HashMap<String, String>();
         //Running a for loop to put the values of ararylist in HashMap
-        int count=1;
-        System.out.println(Values.size());
-        for(String value:Values)
-        {   
-            epochtime=System.currentTimeMillis()/1000;
-            String key="EpochTime:"+epochtime+",Valuecount:"+count;
-            inputMap.put(key, value);
-            count++;
-        }
+        // int count=1;
+        // System.out.println(Values.size());
+        // for(String value:Values)
+        // {   
+        //     epochtime=System.currentTimeMillis()/1000;
+        //     String key="EpochTime:"+epochtime+",Valuecount:"+count;
+        //     inputMap.put(key, value);
+        //     count++;
+        // }
 
         // Converting map to a JSON payload as string
         try {
-            String employeePrettyJson = map.writerWithDefaultPrettyPrinter().writeValueAsString(inputMap);
+            String employeePrettyJson = map.writerWithDefaultPrettyPrinter().writeValueAsString(Values);
             System.out.println(employeePrettyJson);
         } catch (JsonException e) {
             e.printStackTrace();
@@ -203,7 +180,7 @@ public class Wrappers {
         //Writing JSON on a file
         try {
             map.writerWithDefaultPrettyPrinter()
-                    .writeValue(f, inputMap);
+                    .writeValue(f, Values);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -224,20 +201,3 @@ public class Wrappers {
 
 
 
-// public static void goToUrlAndWait(WebDriver driver, String url) {
-//     driver.get(url); // youtube
-//     new WebDriverWait(driver, Duration.ofSeconds(10)).until(
-//         webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete")
-//     );
-// }
-
-// double value = Double.parseDouble(stringValue.replaceAll("[^0-9]", ""));
-//         if (stringValue.endsWith("K")) {
-//             return (long) value * 1000;
-//         } else if (stringValue.endsWith("M")) {
-//             return (long) value * 1000000;
-//         } else if (stringValue.endsWith("B")) {
-//             return (long) value * 1000000000;
-//         } else {
-//             return Long.parseLong(stringValue.replaceAll("[^0-9]", ""));
-//         }
