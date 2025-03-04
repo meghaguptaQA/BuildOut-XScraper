@@ -89,7 +89,7 @@ public class TestCases {
         
         //Locate the element Hockey Teams: Forms, Searching and Pagination
         // WebElement linkHockey=Wrappers.FindElement(driver,"//a[text()='Hockey Teams: Forms, Searching and Pagination']");
-        WebElement linkHockey=Wrappers.FindElement(driver,"//a[contains(text(),'Hockey Teams')]");
+        WebElement linkHockey=driver.findElement(By.xpath("//a[contains(text(),'Hockey Teams')]"));
         //Click on the link Hockey Teams: Forms, Searching and Pagination
         Wrappers.btn_click(linkHockey);
         Thread.sleep(3000);
@@ -109,7 +109,7 @@ public class TestCases {
     wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[text()='Oscar Winning Films: AJAX and Javascript']")));
     //Locate the element Oscar Winning Films: AJAX and Javascript
     // WebElement linkOscar=Wrappers.FindElement(driver,"//a[text()='Oscar Winning Films: AJAX and Javascript']");
-    WebElement linkOscar=Wrappers.FindElement(driver,"//a[contains(text(),'Oscar Winning Films')]");
+    WebElement linkOscar=driver.findElement(By.xpath("//a[contains(text(),'Oscar Winning Films')]"));
     //Click on Oscar Winning Films: AJAX and Javascript
     Wrappers.btn_click(linkOscar);
     Thread.sleep(3000);
